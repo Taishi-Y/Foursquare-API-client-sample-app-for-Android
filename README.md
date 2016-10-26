@@ -1,7 +1,10 @@
 ## Foursquare API client sample app for Android
 
+![main screen](https://github.com/Taishi-Y/Foursquare-API-client-sample-app-for-Android/blob/master/images/screenshot.png?raw=true)
+
 
 ### Overview
+
 This project is getting venue datas from Foursquare API.( https://developer.foursquare.com/overview/ )
 
 You can just clone this sample repository and know how it works very easily.
@@ -340,3 +343,7 @@ public class ExploreListAdapter extends ArrayAdapter<Item_> {
 	}
 }
 ```
+
+Thanks!
+Feel free to ask me! :)
+https://twitter.com/taishi0917
