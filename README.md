@@ -323,6 +323,15 @@ public class MainActivity extends AppCompatActivity {
 ```
 ### 6. Make adapter class for ListView
 
+In Android development, any time we want to show a vertical list of scrollable items we will use a ListView which has data populated using an Adapter.
+
+When using an adapter and a ListView, we need to make sure to understand how view recycling works.
+
+When your ListView is connected to an adapter, the adapter will instantiate rows until the ListView has been fully populated with enough items to fill the full height of the list. At that point, no additional row items are created in memory.
+
+Instead, as the user scroll through the list, items that leave the screen are kept in memory for later use and then every new row that enters the screen reuses an older row kept around in memory. In this way, even for a list of 1000 items, only ~7 item view rows are ever instantiated or held in memory. 
+[This](https://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView#row-view-recycling) explain about ListView and ArrayAdapter and how to use these.
+
 ```java
 public class ExploreListAdapter extends ArrayAdapter<Item_> {
 	private LayoutInflater layoutInflater_;
@@ -334,35 +343,106 @@ public class ExploreListAdapter extends ArrayAdapter<Item_> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// 特定の行(position)のデータを得る
+		// Get the data item for this position
 		Item_ item_ = getItem(position);
-
-		String name = item_.getVenue().getName();
-		double point = item_.getVenue().getRating();
-		String genre = item_.getVenue().getCategories().get(0).getName();
-		int distance = item_.getVenue().getLocation().getDistance();
-		String comment = item_.getTips().get(0).getText();
-
-
-
-		// convertViewは使い回しされている可能性があるのでnullの時だけ新しく作る
+		
+		// Check if an existing view is being reused, otherwise inflate the view
 		if (null == convertView) {
 			convertView = layoutInflater_.inflate(R.layout.item_list, null);
 		}
-
+		
+		// Lookup view for data population
 		TextView tvName = (TextView) convertView.findViewById(R.id.tv_item_name);
 		TextView tvPoint = (TextView) convertView.findViewById(R.id.tv_list_point);
 		TextView tvGenre = (TextView) convertView.findViewById(R.id.tv_item_genre);
 		TextView tvDistance = (TextView) convertView.findViewById(R.id.tv_item_distance);
 		TextView tvComment = (TextView) convertView.findViewById(R.id.tv_item_comment);
 
-
+		// Get each data from "item_"
+		String name = item_.getVenue().getName();
+		double point = item_.getVenue().getRating();
+		String genre = item_.getVenue().getCategories().get(0).getName();
+		int distance = item_.getVenue().getLocation().getDistance();
+		String comment = item_.getTips().get(0).getText();
+		
+		// Populate the data into the template view using the data object
 		tvName.setText(name);
 		tvPoint.setText(String.valueOf(point));
 		tvGenre.setText(genre);
 		tvDistance.setText(String.valueOf(distance));
 		tvComment.setText(comment);
 
+		return convertView;
+	}
+}
+```
+
+### 7. Improving Performance with the ViewHolder Pattern
+To improve performance, we should modify the custom adapter by applying the ViewHolder pattern which speeds up the population of the ListView considerably by caching view lookups for smoother, faster item loading:
+
+```java
+public class ExploreListAdapter extends ArrayAdapter<Item_> {
+	private LayoutInflater layoutInflater_;
+
+	// View lookup cache
+	private static class ViewHolder {
+		TextView tvName;
+		TextView tvPoint;
+		TextView tvGenre;
+		TextView tvDistance;
+		TextView tvComment;
+	}
+
+	public ExploreListAdapter(Context context, int layout, List<Item_> objects) {
+		super(context, layout, objects);
+		layoutInflater_ = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		// Get the data item for this position
+		Item_ item_ = getItem(position);
+
+		// Check if an existing view is being reused, otherwise inflate the view
+		ViewHolder viewHolder; // view lookup cache stored in tag
+		if (convertView == null) {
+			// If there's no view to re-use, inflate a brand new view for row
+			viewHolder = new ViewHolder();
+			LayoutInflater inflater = LayoutInflater.from(getContext());
+			convertView = inflater.inflate(R.layout.item_list, parent, false);
+
+			// Lookup view for data population
+			viewHolder.tvName = (TextView) convertView.findViewById(R.id.tv_item_name);
+			viewHolder.tvPoint = (TextView) convertView.findViewById(R.id.tv_list_point);
+			viewHolder.tvGenre = (TextView) convertView.findViewById(R.id.tv_item_genre);
+			viewHolder.tvDistance = (TextView) convertView.findViewById(R.id.tv_item_distance);
+			viewHolder.tvComment = (TextView) convertView.findViewById(R.id.tv_item_comment);
+
+			// Cache the viewHolder object inside the fresh view
+			convertView.setTag(viewHolder);
+		} else {
+			// View is being recycled, retrieve the viewHolder object from tag
+			viewHolder = (ViewHolder) convertView.getTag();
+		}
+
+
+		// Get each data from "item_"
+		String name = item_.getVenue().getName();
+		double point = item_.getVenue().getRating();
+		String genre = item_.getVenue().getCategories().get(0).getName();
+		int distance = item_.getVenue().getLocation().getDistance();
+		String comment = item_.getTips().get(0).getText();
+
+		// Populate the data from the data object via the viewHolder object
+		// into the template view.
+
+		viewHolder.tvName.setText(name);
+		viewHolder.tvPoint.setText(String.valueOf(point));
+		viewHolder.tvGenre.setText(genre);
+		viewHolder.tvDistance.setText(String.valueOf(distance));
+		viewHolder.tvComment.setText(comment);
+
+		// Return the completed view to render on screen
 		return convertView;
 	}
 }
