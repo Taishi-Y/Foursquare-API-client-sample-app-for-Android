@@ -1,4 +1,4 @@
-## Foursquare API client sample app for Android
+## Foursquare API client sample app for Android with Retrofit
 
 ![main screen](https://github.com/Taishi-Y/Foursquare-API-client-sample-app-for-Android/blob/master/images/screenshot.png?raw=true)
 
@@ -17,11 +17,12 @@ Get your "Client_ID" and "Client_Secret" from this link:
 https://ja.foursquare.com/developers/apps
 
 Set your  "Client_ID" and "Client_Secret":
-
+MainActivity.java
 ```java
-public class Configuration {
+public class MainActivity extends AppCompatActivity {
 	String Client_ID = "YOUR CLIENT ID";
-	String Client_Secret = "YOUR CLIENT SECRET";
+	String Client_Secret = "YOUR CLIENT SECRET";	
+//....
 }
 ```
 
@@ -32,11 +33,13 @@ Make sure to require Internet permissions in your AndroidManifest.xml file:
 </manifest>
 ```
 
+We will use Retrofit library( https://square.github.io/retrofit/ )
 Add the following to your app/build.gradle file:
 ```java
 compile 'com.squareup.retrofit2:retrofit:2.1.0'
 compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 
+// This is for 
 provided 'org.glassfish:javax.annotation:10.0-b28'
 ```
 
@@ -44,10 +47,12 @@ provided 'org.glassfish:javax.annotation:10.0-b28'
 
 ### 1. Creating the Retrofit instance
 ```java
-Retrofit retrofit = new Retrofit.Builder()
-			.baseUrl("https://api.foursquare.com/v2/")
-			.addConverterFactory(GsonConverterFactory.create())
-			.build();
+public interface FourSquareService {
+	Retrofit retrofit = new Retrofit.Builder()
+				.baseUrl("https://api.foursquare.com/v2/")
+				.addConverterFactory(GsonConverterFactory.create())
+				.build();
+}
 ```
 ### 2. Define the Endpoints
 For instance, the interface defines each endpoint in the following way:
@@ -152,6 +157,8 @@ activity_main.xlm :
 
 ```
 
+This is an layout of item for listview in MainActivity.
+
 item_list.xml:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -232,8 +239,8 @@ public class MainActivity extends AppCompatActivity {
 	EditText etGeolocation, etQuery;
 	Button btnSearch;
 	ListView listView;
-	String Client_ID = "YOUR_CLIENT_ID";
-	String Client_Secret = "YOUR_CLIENT_SECRET";
+	String Client_ID = "VIEQ0QX5GAJ1XLDJABA5WBS54XCVTNWLNY2NLAZVNB2ZDUYM";
+	String Client_Secret = "COARL4531NXUEZTWDE21201TRAZXPEFIQKXFY4AJKHWHDXOT";
 	String apiVersion = "20161010";
 	String geoLocation = "40.7,-74";
 	String query = "cafe";
@@ -261,6 +268,8 @@ public class MainActivity extends AppCompatActivity {
 		listView = (ListView)findViewById(R.id.listivew);
 	}
 
+
+
 	public class ExploreAsyncTask extends AsyncTask<Void,Void,List<Item_>> {
 
 		public ExploreAsyncTask() {
@@ -283,17 +292,18 @@ public class MainActivity extends AppCompatActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return null;
+			return item_list;
 		}
 
 		@Override
 		protected void onPostExecute(List<Item_> item_s) {
 			super.onPostExecute(item_s);
-			ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_list);
+			ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_s);
 			listView.setAdapter(exploreListAdapter);
 		}
 	}
 }
+
 
 ```
 ### 6. Make adapter class for ListView
@@ -332,11 +342,10 @@ public class ExploreListAdapter extends ArrayAdapter<Item_> {
 		TextView tvComment = (TextView) convertView.findViewById(R.id.tv_item_comment);
 
 
-
 		tvName.setText(name);
 		tvPoint.setText(String.valueOf(point));
 		tvGenre.setText(genre);
-		tvDistance.setText(String.valueOf(distance	));
+		tvDistance.setText(String.valueOf(distance));
 		tvComment.setText(comment);
 
 		return convertView;
