@@ -448,6 +448,59 @@ public class ExploreListAdapter extends ArrayAdapter<Item_> {
 }
 ```
 
+### 8. Consume the API asynchronously without AsyncTask
+If we want to consume the API asynchronously, we call the service as follows:
+
+```java
+public class MainActivity extends AppCompatActivity {
+
+	EditText etGeolocation, etQuery;
+	Button btnSearch;
+	ListView listView;
+	String Client_ID = "VIEQ0QX5GAJ1XLDJABA5WBS54XCVTNWLNY2NLAZVNB2ZDUYM";
+	String Client_Secret = "COARL4531NXUEZTWDE21201TRAZXPEFIQKXFY4AJKHWHDXOT";
+	String apiVersion = "20161010";
+	String geoLocation = "40.7,-74";
+	String query = "cafe";
+
+
+	List<Item_> item_list = new ArrayList<Item_>();
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		findViewByIds();
+		btnSearch.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				FourSquareService fourSquareService = FourSquareService.retrofit.create(FourSquareService.class);
+				final Call<Explore> call = fourSquareService.requestExplore(Client_ID, Client_Secret, apiVersion, geoLocation, query);
+				call.enqueue(new Callback<Explore>() {
+					@Override
+					public void onResponse(Call<Explore> call, Response<Explore> response) {
+						item_list = response.body().getResponse().getGroups().get(0).getItems();
+						ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_list);
+						listView.setAdapter(exploreListAdapter);
+					}
+
+					@Override
+					public void onFailure(Call<Explore> call, Throwable t) {
+
+					}
+				});
+			}
+		});
+	}
+	void findViewByIds(){
+		etGeolocation = (EditText) findViewById(R.id.et_geolocation);
+		etQuery = (EditText) findViewById(R.id.et_query);
+		btnSearch = (Button) findViewById(R.id.btn_search);
+		listView = (ListView)findViewById(R.id.listivew);
+	}
+}
+```
+
 Thanks!
 Feel free to ask me! :)
 https://twitter.com/taishi0917
