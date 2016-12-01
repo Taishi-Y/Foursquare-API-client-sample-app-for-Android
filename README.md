@@ -5,10 +5,15 @@
 
 ### Overview
 
-This project is getting venue datas from Foursquare API.( https://developer.foursquare.com/overview/ )
+This project is getting venue datas from Foursquare API with Retrofit.( https://developer.foursquare.com/overview/ )
+Retrofit is an HTTP library.
 
 You can just clone this sample repository and know how it works very easily.
 Personally I think Foursquare API is good for learning how to get and parse JSON data.
+
+Before I've used volley library to handle JSON. Volley is an HTTP library that makes networking for Android apps easier and most importantly, faster. 
+BUT I switched to Retrofit. When I saw Retrofit document I feel this is difficult to approach but once tried some tutorials, I was able to reduce messy code and make it cleaner. 
+Also Retrofit is faster than Volley. ( http://stackoverflow.com/questions/16902716/comparison-of-android-networking-libraries-okhttp-retrofit-volley )
 
 
 ### Set up
@@ -87,6 +92,7 @@ https://guides.codepath.com/android/Consuming-APIs-with-Retrofit#create-java-cla
 
 
 ### 4. Make layout files
+
 activity_main.xlm :
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -157,8 +163,9 @@ activity_main.xlm :
 
 ```
 
-This is a layout of item for listview in MainActivity.
 
+
+This is a layout of item for listview in MainActivity.
 item_list.xml:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
