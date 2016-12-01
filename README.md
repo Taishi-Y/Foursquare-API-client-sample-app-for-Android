@@ -157,7 +157,7 @@ activity_main.xlm :
 
 ```
 
-This is an layout of item for listview in MainActivity.
+This is a layout of item for listview in MainActivity.
 
 item_list.xml:
 ```xml
@@ -231,6 +231,11 @@ item_list.xml:
 
 
 ### 5. Make MainActivity
+At this time we are going to call Rest API in AsyncTask class.
+AsyncTask enables proper and easy use of the UI thread. This class allows you to perform background operations and publish results on the UI thread without having to manipulate threads and/or handlers.
+
+
+I will introduce you how can you call Rest API without AsyncTask later in this tutorial.
 
 MainActivity.java:
 ```java
@@ -256,11 +261,14 @@ public class MainActivity extends AppCompatActivity {
 		btnSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				// Execute ExploreAsyncTask 
 				ExploreAsyncTask exploreAsyncTask = new ExploreAsyncTask();
 				exploreAsyncTask.execute();
 			}
 		});
 	}
+	
+	// Initialize some elements (I just want to organize it. If you feel this is so troublesome.. You can look at Butter knife library.)
 	void findViewByIds(){
 		etGeolocation = (EditText) findViewById(R.id.et_geolocation);
 		etQuery = (EditText) findViewById(R.id.et_query);
