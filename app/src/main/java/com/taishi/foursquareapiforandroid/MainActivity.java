@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,8 +42,24 @@ public class MainActivity extends AppCompatActivity {
 		btnSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				ExploreAsyncTask exploreAsyncTask = new ExploreAsyncTask();
-				exploreAsyncTask.execute();
+//				ExploreAsyncTask exploreAsyncTask = new ExploreAsyncTask();
+//				exploreAsyncTask.execute();
+
+				FourSquareService fourSquareService = FourSquareService.retrofit.create(FourSquareService.class);
+				final Call<Explore> call = fourSquareService.requestExplore(Client_ID, Client_Secret, apiVersion, geoLocation, query);
+				call.enqueue(new Callback<Explore>() {
+					@Override
+					public void onResponse(Call<Explore> call, Response<Explore> response) {
+						item_list = response.body().getResponse().getGroups().get(0).getItems();
+						ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_list);
+						listView.setAdapter(exploreListAdapter);
+					}
+
+					@Override
+					public void onFailure(Call<Explore> call, Throwable t) {
+
+					}
+				});
 			}
 		});
 	}
@@ -74,13 +92,13 @@ public class MainActivity extends AppCompatActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return null;
+			return item_list;
 		}
 
 		@Override
 		protected void onPostExecute(List<Item_> item_s) {
 			super.onPostExecute(item_s);
-			ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_list);
+			ExploreListAdapter exploreListAdapter = new ExploreListAdapter(getApplicationContext(), R.layout.item_list, item_s);
 			listView.setAdapter(exploreListAdapter);
 		}
 	}
